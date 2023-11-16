@@ -26,4 +26,5 @@ urlpatterns = [
     path("api/v1/", include("alarms.urls")),
     path("api/v1/", include("devices.urls")),
     path("api/v1/", include("users.urls")),
+    path("api/v1/", include("routes.urls")),
 ]

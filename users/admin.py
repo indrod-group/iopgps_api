@@ -1,5 +1,4 @@
 from django.contrib import admin
-from rest_framework.authtoken.models import Token
 
 from .models import CustomUser
 
@@ -21,8 +20,3 @@ class CustomUserAdmin(admin.ModelAdmin):
 
     def last_name(self, obj):
         return obj.user.last_name
-
-    def save_model(self, request, obj, form, change):
-        super().save_model(request, obj, form, change)
-        if not change:  # si el usuario es nuevo
-            Token.objects.create(user=obj.user)

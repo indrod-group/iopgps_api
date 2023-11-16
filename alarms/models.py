@@ -30,15 +30,12 @@ class Coordinates(models.Model):
         null=True,
         help_text=_("Longitude of the location.")
     )
-    time = models.PositiveBigIntegerField(
-        help_text=_("Time when the coordinates were recorded.")
-    )
 
     class Meta:
         abstract = True
 
     def __str__(self) -> str:
-        return f"Coordinates(lat={self.lat}, lng={self.lng}, time={self.time})"
+        return f"Coordinates(lat={self.lat}, lng={self.lng})"
 
     def __repr__(self) -> str:
         return self.__str__()
@@ -88,6 +85,9 @@ class Alarm(Coordinates):
         blank=True,
         null=True,
         help_text=_("Speed of the device when the alarm occurred."),
+    )
+    time = models.PositiveBigIntegerField(
+        help_text=_("Time when the coordinates were recorded.")
     )
 
     class Meta:

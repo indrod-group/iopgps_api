@@ -45,12 +45,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'whitenoise.runserver_nostatic',
+    'django_filters',
     'corsheaders',
     'coreapi',
     'rest_framework',
     'rest_framework.authtoken',
     'alarms',
     'devices',
+    'routes',
     'users'
 ]
 

@@ -2,4 +2,4 @@
 ignore=migrations
 
 [TYPECHECK]
-ignored-classes=VehicleStatus,Detail,User,CustomUser,Device,UserDevice,Alarm, Token
+ignored-classes=VehicleStatus,Detail,User,CustomUser,Device,UserDevice,Alarm,Token,Route,UserRoute, RoutePosition
