@@ -87,11 +87,18 @@ class DeviceViewSet(viewsets.ModelViewSet):
         """
         imei = request.data.get("imei")
         if imei is not None:
+            data = {
+		        "user_name": request.data.get("user_name"),
+		        "license_number": request.data.get("license_number"),
+		        "vin": request.data.get("vin"),
+		        "car_owner": request.data.get("car_owner"),
+				"is_tracking_alarms": request.data.get("is_tracking_alarms") or False
+		    }
             device, _ = Device.objects.update_or_create(
-                imei=imei, defaults=request.data
+		        imei=imei, defaults=data
             )
             serializer = self.get_serializer(device)
-            return Response(serializer.data, status=status.HTTP_208_ALREADY_REPORTED)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         # If the imei does not exist, we create a new user
         return super().create(request, *args, **kwargs)

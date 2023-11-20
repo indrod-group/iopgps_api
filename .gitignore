@@ -160,3 +160,5 @@ cython_debug/
 #.idea/
 
 variables.sh
+managed_context/
+test_suite_analysis/
