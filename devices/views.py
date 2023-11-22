@@ -72,14 +72,29 @@ class DeviceViewSet(viewsets.ModelViewSet):
         is_tracking_alarms: bool = param.lower() == IS_TRACKING_ALARMS_PARAM.true_value
         self.queryset = self.queryset.filter(is_tracking_alarms=is_tracking_alarms)
 
-    def list(self, request, *args, **kwargs):
+    def list(self, request: Request, *args, **kwargs):
         """
         This method is used to retrieve the query for this endpoint.
         Filters the devices based on the 'is_tracking', 'is_tracking_alarms'
         and 'is_tracking_locations' request parameters.
         """
-        self.__filter_queryset_by_tracking_alarms(request)
+        tracking_param: str = request.query_params.get(
+            IS_TRACKING_ALARMS_PARAM.param, None
+        )
+        if tracking_param is not None:
+            self.__filter_queryset_by_tracking_alarms(request)
         return super().list(request, *args, **kwargs)
+
+    def __get_data_from_request(self, request: Request) -> dict:
+        """Return data from device in a dict."""
+        return {
+            "user_name": request.data.get("user_name"),
+            "license_number": request.data.get("license_number"),
+            "vin": request.data.get("vin"),
+            "car_owner": request.data.get("car_owner"),
+            "is_tracking_alarms": request.data.get("is_tracking_alarms") or False,
+            "last_time_tracked": request.data.get("last_time_tracked") or 0,
+        }
 
     def create(self, request: Request, *args, **kwargs):
         """
@@ -87,16 +102,8 @@ class DeviceViewSet(viewsets.ModelViewSet):
         """
         imei = request.data.get("imei")
         if imei is not None:
-            data = {
-		        "user_name": request.data.get("user_name"),
-		        "license_number": request.data.get("license_number"),
-		        "vin": request.data.get("vin"),
-		        "car_owner": request.data.get("car_owner"),
-				"is_tracking_alarms": request.data.get("is_tracking_alarms") or False
-		    }
-            device, _ = Device.objects.update_or_create(
-		        imei=imei, defaults=data
-            )
+            data = self.__get_data_from_request(request)
+            device, _ = Device.objects.update_or_create(imei=imei, defaults=data)
             serializer = self.get_serializer(device)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -112,7 +119,9 @@ class DeviceViewSet(viewsets.ModelViewSet):
             device = Device.objects.filter(imei=imei).first()
             if device is not None:
                 # If the user exists, we update their data
-                serializer = self.get_serializer(device, data=request.data)
+                serializer = self.get_serializer(
+                    device, data=self.__get_data_from_request(request)
+                )
                 serializer.is_valid(raise_exception=True)
                 self.perform_update(serializer)
                 return Response(serializer.data)

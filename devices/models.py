@@ -53,6 +53,11 @@ class Device(models.Model):
         default=False,
         help_text=_("A flag indicating if the device is tracking alarms."),
     )
+    last_time_tracked = models.PositiveBigIntegerField(
+        _("Last Time Tracked"),
+        default=0,
+        help_text=_("The last time when the device alarms were tracked.")
+    )
 
     class Meta:
         verbose_name = _("Device")
@@ -68,7 +73,8 @@ class Device(models.Model):
             f"car_owner={self.car_owner}, "
             f"license_number={self.license_number}, "
             f"vin={self.vin}, "
-            f"is_tracking_alarms={self.is_tracking_alarms}"
+            f"is_tracking_alarms={self.is_tracking_alarms}, "
+            f"last_time_tracked={self.last_time_tracked}"
         )
 
 
