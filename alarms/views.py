@@ -108,7 +108,7 @@ class AlarmViewSet(viewsets.ModelViewSet):
         If an existing alarm instance with the same imei, alarm_time, and alarm_code exists,
         return that instance instead with a 208 status code.
         """
-        device_imei = request.data.get("device_imei")
+        device_imei = request.data.pop("device_imei")
         device = Device.objects.get(imei=device_imei)
 
         alarm, created = Alarm.objects.get_or_create(
