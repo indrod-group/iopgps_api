@@ -152,7 +152,7 @@ CORS_ORIGIN_WHITELIST = [
     'https://twlxb59c-5173.use2.devtunnels.ms',
     'https://twlxb59c-5174.use2.devtunnels.ms',
     'http://18.232.93.47',
-    'http://0.0.0.0'
+    'http://0.0.0.0:9090'
 ]
 
 REST_FRAMEWORK = {
