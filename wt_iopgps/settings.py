@@ -31,7 +31,7 @@ DEBUG = 'RENDER' not in os.environ
 
 # AWS Instances allowed
 ALLOWED_HOSTS = [
-    '18.232.93.47', '0.0.0.0:9090'
+    '18.232.93.47', '0.0.0.0'
 ]
 
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
@@ -151,7 +151,8 @@ CORS_ORIGIN_WHITELIST = [
     'http://192.168.0.110:5174',
     'https://twlxb59c-5173.use2.devtunnels.ms',
     'https://twlxb59c-5174.use2.devtunnels.ms',
-    'http://18.232.93.47'
+    'http://18.232.93.47',
+    'http://0.0.0.0'
 ]
 
 REST_FRAMEWORK = {
