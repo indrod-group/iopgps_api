@@ -150,7 +150,8 @@ CORS_ORIGIN_WHITELIST = [
     'http://localhost:5174',
     'http://192.168.0.110:5174',
     'https://twlxb59c-5173.use2.devtunnels.ms',
-    'https://twlxb59c-5174.use2.devtunnels.ms'
+    'https://twlxb59c-5174.use2.devtunnels.ms',
+    'http://18.232.93.47'
 ]
 
 REST_FRAMEWORK = {
