@@ -155,6 +155,10 @@ CORS_ORIGIN_WHITELIST = [
     'http://0.0.0.0:9090'
 ]
 
+CSRF_TRUSTED_ORIGINS = [
+    '18.232.93.47', '0.0.0.0',
+]
+
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
     'DEFAULT_PERMISSION_CLASSES': [
