@@ -156,7 +156,8 @@ CORS_ORIGIN_WHITELIST = [
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    '18.232.93.47', '0.0.0.0:9090',
+    'http://18.232.93.47',
+    'http://0.0.0.0:9090',
 ]
 
 REST_FRAMEWORK = {
