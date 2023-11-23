@@ -31,7 +31,7 @@ DEBUG = 'RENDER' not in os.environ
 
 # AWS Instances allowed
 ALLOWED_HOSTS = [
-    '18.232.93.47', '0.0.0.0'
+    '18.232.93.47', '0.0.0.0:9090'
 ]
 
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
