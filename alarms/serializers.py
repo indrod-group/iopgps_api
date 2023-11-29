@@ -70,18 +70,53 @@ class AlarmSerializer(serializers.ModelSerializer):
 
             # If the request was successful, get the address from the response
             if response.status_code == 200 and data["features"]:
-                validated_data["address"] = data["features"][0]["properties"][
-                    "formatted"
-                ]
+                first_feature = data["features"][0]
+                if "properties" in first_feature and "formatted" in first_feature["properties"]:
+                    validated_data["address"] = first_feature["properties"]["formatted"]
 
         alarm = Alarm.objects.create(device=device, **validated_data)
         return alarm
 
     def update(self, instance, validated_data):
         """
-        Overwrites the update method to prevent updates.
+        Update an existing alarm instance.
+        If latitude, longitude, time, and alarm_code are the same,
+        and the address is either blank or null,
+        make a reverse geocoding request to Geoapify to update the address.
         """
-        raise NotImplementedError("Update operation is not allowed.")
+        lat = validated_data.get("lat")
+        lng = validated_data.get("lng")
+        time = validated_data.get("time")
+        alarm_code = validated_data.get("alarm_code")
+
+        # Check if the alarm instance has the same lat, lng, time, and alarm_code
+        if (
+            instance.lat == lat
+            and instance.lng == lng
+            and instance.time == time
+            and instance.alarm_code == alarm_code
+        ):
+            # Check if the address is either blank or null
+            if not instance.address:
+                api_key = os.getenv("GEOAPIFY_KEY")
+                # Make a reverse geocoding request to Geoapify
+                response = requests.get(
+                    (
+                        "https://api.geoapify.com/v1/geocode/reverse?"
+                        f"lat={lat}&lon={lng}&apiKey={api_key}"
+                    ),
+                    timeout=5000,
+                )
+                data = response.json()
+
+                # If the request was successful, get the address from the response
+                if response.status_code == 200 and data["features"]:
+                    first_feature = data["features"][0]
+                    if "properties" in first_feature and "formatted" in first_feature["properties"]:
+                        instance.address = first_feature["properties"]["formatted"]
+                        instance.save()
+
+        return instance
 
     def partial_update(self, instance, validated_data):
         """

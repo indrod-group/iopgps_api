@@ -6,7 +6,7 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.request import Request
 
-from .models import Alarm, Device
+from .models import Alarm
 from .serializers import AlarmSerializer
 from .utils import fix_range_times
 
@@ -108,31 +108,28 @@ class AlarmViewSet(viewsets.ModelViewSet):
         If an existing alarm instance with the same imei, alarm_time, and alarm_code exists,
         return that instance instead with a 208 status code.
         """
-        device_imei = request.data.pop("device_imei")
-        device = Device.objects.get(imei=device_imei)
+        imei = request.data.get("device__imei")
+        alarm_time = request.data.get("time")
+        alarm_code = request.data.get("alarm_code")
 
-        alarm, created = Alarm.objects.get_or_create(
-            device=device,
-            address=request.data.get("address"),
-            alarm_code=request.data.get("alarm_code"),
-            alarm_type=request.data.get("alarm_type"),
-            course=request.data.get("course"),
-            device_type=request.data.get("device_type"),
-            position_type=request.data.get("position_type"),
-            speed=request.data.get("speed"),
-            lat=request.data.get("lat"),
-            lng=request.data.get("lng"),
-            time=request.data.get("time"),
-            defaults=request.data,
-        )
-        if not created:
+        existing_detail = self.get_existing_detail(imei, alarm_time, alarm_code)
+        if existing_detail is not None:
+            serializer = self.get_serializer(existing_detail)
+            headers = self.get_success_headers(serializer.data)
             return Response(
-                {"detail": "Alarm already exists."},
+                serializer.data,
                 status=status.HTTP_208_ALREADY_REPORTED,
+                headers=headers,
             )
 
-        serializer = self.get_serializer(alarm)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+
+        headers = self.get_success_headers(serializer.data)
+        return Response(
+            serializer.data, status=status.HTTP_201_CREATED, headers=headers
+        )
 
     def update(self, request, *args, **kwargs):
         """
