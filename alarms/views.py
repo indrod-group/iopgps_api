@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework.request import Request
 
 from .models import Alarm
-from .serializers import AlarmSerializer
+from .serializers import AlarmSerializer, get_address
 from .utils import fix_range_times
 
 
@@ -93,7 +93,7 @@ class AlarmViewSet(viewsets.ModelViewSet):
         self.filter_queryset_by_imei(request)
         return super().list(request, *args, **kwargs)
 
-    def get_existing_detail(self, imei, alarm_time, alarm_code):
+    def get_existing_alarm(self, imei, alarm_time, alarm_code):
         """
         Get an existing alarm instance that matches the given imei, alarm_time, and alarm_code.
         If no such instance exists, return None.
@@ -102,19 +102,39 @@ class AlarmViewSet(viewsets.ModelViewSet):
             device__imei=imei, time=alarm_time, alarm_code=alarm_code
         ).first()
 
+    def __update_address_in_alarm(self, alarm: Alarm):
+        """Updates the address of an alarm if needed."""
+        lat = alarm.lat
+        lng = alarm.lng
+        address = alarm.address
+        if lat is None or lng is None:
+            return alarm
+
+        if address is not None:
+            return alarm
+
+        if address != "":
+            return alarm
+
+        alarm.address = get_address(lat, lng)
+
+        return alarm
+
     def create(self, request: Request, *args, **kwargs):
         """
         Create a new alarm instance with the data provided in the request.
         If an existing alarm instance with the same imei, alarm_time, and alarm_code exists,
         return that instance instead with a 208 status code.
         """
-        imei = request.data.get("device__imei")
+        imei = request.data.get("device_imei")
         alarm_time = request.data.get("time")
         alarm_code = request.data.get("alarm_code")
 
-        existing_detail = self.get_existing_detail(imei, alarm_time, alarm_code)
-        if existing_detail is not None:
-            serializer = self.get_serializer(existing_detail)
+        existing_alarm = self.get_existing_alarm(imei, alarm_time, alarm_code)
+        if existing_alarm is not None:
+            existing_alarm = self.__update_address_in_alarm(existing_alarm)
+            existing_alarm.save(force_update=True)
+            serializer = self.get_serializer(existing_alarm)
             headers = self.get_success_headers(serializer.data)
             return Response(
                 serializer.data,
