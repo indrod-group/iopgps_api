@@ -62,6 +62,18 @@ class DeviceViewSet(viewsets.ModelViewSet):
     queryset = Device.objects.all()
     serializer_class = DeviceSerializer
 
+    def retrieve(self, request, *args, **kwargs):
+        """Retrieve a device instance by its primary key (pk)."""
+        pk = kwargs.get('pk')
+        if pk is not None:
+            device = Device.objects.filter(pk=pk).first()
+            if device is not None:
+                serializer = self.get_serializer(device)
+                return Response(serializer.data)
+
+        # If the pk does not exist or the device does not exist, we return an error
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
     def __filter_queryset_by_tracking_alarms(self, request: Request):
         """
         Filters the queryset based on the 'is_tracking_alarms' request parameter.

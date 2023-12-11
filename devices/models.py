@@ -64,7 +64,7 @@ class Device(models.Model):
         verbose_name_plural = _("Devices")
 
     def __str__(self) -> str:
-        return f"{self.imei}"
+        return f"{self.imei} - {self.user_name}"
 
     def __repr__(self) -> str:
         return (

@@ -6,9 +6,9 @@ from .models import Device, UserDevice
 class UserDeviceAdmin(admin.ModelAdmin):
     """
     Admin interface for the UserDevice model.
-    Displays the users and devices fields in the list view.
+    Displays the users, devices and user name fields in the list view.
     """
-    list_display = ['get_user', 'get_device']
+    list_display = ['get_user', 'get_device', 'get_user_name']
 
     def get_user(self, obj):
         return str(obj.user)
@@ -17,6 +17,10 @@ class UserDeviceAdmin(admin.ModelAdmin):
     def get_device(self, obj):
         return obj.device.imei
     get_device.short_description = 'Device'
+
+    def get_user_name(self, obj):
+        return obj.device.user_name
+    get_user_name.short_description = 'User Name'
 
 
 @admin.register(Device)
