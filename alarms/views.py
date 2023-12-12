@@ -3,10 +3,11 @@ from typing import Optional
 
 from django.utils import timezone
 from rest_framework import viewsets, status
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.request import Request
 
-from .models import Alarm
+from .models import Alarm, Device
 from .serializers import AlarmSerializer, get_address
 from .utils import fix_range_times
 
@@ -55,19 +56,12 @@ class AlarmViewSet(viewsets.ModelViewSet):
         """
         imei = request.query_params.get("imei", None)
         if imei is None:
-            return Response(
-                {"detail": "imei is required."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+            raise ValidationError({"detail": "imei is required."})
 
-        if not Alarm.objects.filter(device__imei=imei).exists():
-            return Response(
-                {"detail": "imei from a registered device is required."},
-                status=status.HTTP_404_NOT_FOUND,
-            )
+        if not Device.objects.filter(imei=imei).exists():
+            raise ValidationError({"detail": "imei from a registered device is required."})
 
-        if imei is not None:
-            self.queryset = self.queryset.filter(device__imei=imei)
+        self.queryset = self.queryset.filter(device__imei=imei)
 
     def filter_queryset_by_time_range(self, request: Request):
         """
@@ -75,7 +69,7 @@ class AlarmViewSet(viewsets.ModelViewSet):
         The time range should be two integers representing the start and end time in unix format.
         The default value for the end time is the current time.
         """
-        start_time = request.query_params.get("start_time")
+        start_time = request.query_params.get("start_time", None)
         end_time = request.query_params.get("end_time", int(timezone.now().timestamp()))
         start_time, end_time = fix_range_times(start_time, end_time)
         if start_time is not None:
@@ -87,10 +81,10 @@ class AlarmViewSet(viewsets.ModelViewSet):
         If the last_alarms filter is applied, the time_range filter is ignored.
         The alarm_code and imei filters are applied if specified.
         """
+        self.filter_queryset_by_imei(request)
         if not self.filter_queryset_by_alarm_time(request):
             self.filter_queryset_by_time_range(request)
         self.filter_queryset_by_alarm_code(request)
-        self.filter_queryset_by_imei(request)
         return super().list(request, *args, **kwargs)
 
     def get_existing_alarm(self, imei, alarm_time, alarm_code):

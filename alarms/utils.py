@@ -2,7 +2,7 @@ from typing import Optional, Tuple
 from django.utils import timezone
 
 def fix_range_times(
-    start_time: Optional[int], end_time: Optional[int]
+    start_time: Optional[str], end_time: Optional[str]
 ) -> Tuple[int, int]:
     """
     This function adjusts the start and end times to a valid range.
@@ -23,9 +23,7 @@ def fix_range_times(
     """
     if start_time is None:
         start_time: int = int(
-            timezone.now()
-            .replace(hour=0, minute=0, second=0, microsecond=0)
-            .timestamp()
+            timezone.now().replace(hour=0, minute=0, second=0, microsecond=0).timestamp()
         )
     else:
         start_time = int(start_time)
