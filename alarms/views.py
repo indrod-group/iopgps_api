@@ -20,81 +20,47 @@ class AlarmViewSet(viewsets.ModelViewSet):
     The viewset does not allow update or destroy operations.
     """
 
-    queryset = Alarm.objects.all()
     serializer_class = AlarmSerializer
 
-    def filter_queryset_by_alarm_code(self, request: Request):
+    def get_queryset(self):
         """
-        Filter the queryset by the alarm codes specified in the request query parameters.
-        The alarm codes should be comma-separated strings.
+        Get the queryset for the alarms, applying the necessary filters and optimizations.
         """
-        alarm_codes: Optional[str] = request.query_params.get("alarm_codes")
-        if alarm_codes is not None:
-            alarm_codes = alarm_codes.split(",")
-            self.queryset = self.queryset.filter(alarm_code__in=alarm_codes)
-
-    def filter_queryset_by_alarm_time(self, request: Request):
-        """
-        Filter the queryset by the alarm time specified in the request query parameters.
-        The alarm time should be a boolean indicating whether to return only the last alarms
-        within a given number of seconds. The default value for the number of seconds is 120.
-        """
-        last_alarms: bool = (
-            request.query_params.get("last_alarms", "false").lower() == "true"
-        )
-        if last_alarms:
-            seconds = int(request.query_params.get("seconds", "120"))
-            time_ago = timezone.now() - timedelta(seconds=seconds)
-            time_ago_unix = int(time_ago.timestamp())
-            self.queryset = self.queryset.filter(time__gte=time_ago_unix)
-            return last_alarms
-
-    def filter_queryset_by_imei(self, request: Request):
-        """
-        Filter the queryset by the imei specified in the request query parameters.
-        The imei should be a string representing the unique identifier of the device.
-        """
-        imei = request.query_params.get("imei", None)
+        imei: Optional[str] = self.request.query_params.get("imei", None)
         if imei is None:
             raise ValidationError({"detail": "imei is required."})
 
         if not Device.objects.filter(imei=imei).exists():
-            raise ValidationError({"detail": "imei from a registered device is required."})
+            raise ValidationError(
+                {"detail": "imei from a registered device is required."}
+            )
 
-        self.queryset = self.queryset.filter(device__imei=imei)
+        queryset = Alarm.objects.select_related("device")
+        queryset = queryset.filter(device__imei=imei)
 
-    def filter_queryset_by_time_range(self, request: Request):
-        """
-        Filter the queryset by the time range specified in the request query parameters.
-        The time range should be two integers representing the start and end time in unix format.
-        The default value for the end time is the current time.
-        """
-        start_time = request.query_params.get("start_time", None)
-        end_time = request.query_params.get("end_time", int(timezone.now().timestamp()))
-        start_time, end_time = fix_range_times(start_time, end_time)
-        if start_time is not None:
-            self.queryset = self.queryset.filter(time__range=(start_time, end_time))
+        alarm_codes: Optional[str] = self.request.query_params.get("alarm_codes", None)
+        if alarm_codes is not None:
+            alarm_codes = alarm_codes.split(",")
+            queryset = queryset.filter(alarm_code__in=alarm_codes)
 
-    def list(self, request, *args, **kwargs):
-        """
-        List the alarms that match the filtering criteria in the request query parameters.
-        If the last_alarms filter is applied, the time_range filter is ignored.
-        The alarm_code and imei filters are applied if specified.
-        """
-        self.filter_queryset_by_imei(request)
-        if not self.filter_queryset_by_alarm_time(request):
-            self.filter_queryset_by_time_range(request)
-        self.filter_queryset_by_alarm_code(request)
-        return super().list(request, *args, **kwargs)
+        last_alarms: bool = (
+            self.request.query_params.get("last_alarms", "false").lower() == "true"
+        )
+        if last_alarms:
+            seconds = int(self.request.query_params.get("seconds", "120"))
+            time_ago = timezone.now() - timedelta(seconds=seconds)
+            time_ago_unix = int(time_ago.timestamp())
+            queryset = queryset.filter(time__gte=time_ago_unix)
+        else:
+            start_time = self.request.query_params.get("start_time", None)
+            end_time = self.request.query_params.get(
+                "end_time", int(timezone.now().timestamp())
+            )
+            start_time, end_time = fix_range_times(start_time, end_time)
+            if start_time is not None:
+                queryset = queryset.filter(time__range=(start_time, end_time))
 
-    def get_existing_alarm(self, imei, alarm_time, alarm_code):
-        """
-        Get an existing alarm instance that matches the given imei, alarm_time, and alarm_code.
-        If no such instance exists, return None.
-        """
-        return Alarm.objects.filter(
-            device__imei=imei, time=alarm_time, alarm_code=alarm_code
-        ).first()
+        return queryset
 
     def __update_address_in_alarm(self, alarm: Alarm):
         """Updates the address of an alarm if needed."""
@@ -117,28 +83,29 @@ class AlarmViewSet(viewsets.ModelViewSet):
     def create(self, request: Request, *args, **kwargs):
         """
         Create a new alarm instance with the data provided in the request.
-        If an existing alarm instance with the same imei, alarm_time, and alarm_code exists,
-        return that instance instead with a 208 status code.
+        If an existing alarm instance with the same imei, alarm_time,
+        and alarm_code exists, update that instance.
         """
         imei = request.data.get("device_imei")
         alarm_time = request.data.get("time")
         alarm_code = request.data.get("alarm_code")
 
-        existing_alarm = self.get_existing_alarm(imei, alarm_time, alarm_code)
+        # Get the device associated with the imei
+        device = Device.objects.get(imei=imei)
+
+        # Try to get an existing alarm instance
+        existing_alarm = Alarm.objects.filter(
+            device=device, time=alarm_time, alarm_code=alarm_code
+        ).first()
+
         if existing_alarm is not None:
             existing_alarm = self.__update_address_in_alarm(existing_alarm)
             existing_alarm.save(force_update=True)
             serializer = self.get_serializer(existing_alarm)
-            headers = self.get_success_headers(serializer.data)
-            return Response(
-                serializer.data,
-                status=status.HTTP_208_ALREADY_REPORTED,
-                headers=headers,
-            )
-
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
+        else:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
 
         headers = self.get_success_headers(serializer.data)
         return Response(
