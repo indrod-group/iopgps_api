@@ -14,7 +14,7 @@ class CustomUserViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = CustomUserSerializer
     queryset = CustomUser.objects.all()
     filter_backends = [filters.SearchFilter]
-    search_fields = ["user__email"]
+    search_fields = ["user__email", "user__username"]
 
 
 class ChangePasswordViewSet(mixins.UpdateModelMixin, viewsets.GenericViewSet):
