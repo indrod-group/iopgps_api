@@ -17,25 +17,25 @@ class ChangePasswordSerializer(serializers.Serializer):
     uuid = serializers.UUIDField(
         required=True,
         write_only=True,
-        help_text=_("UUID of the user whose password will be changed.")
+        help_text=_("UUID of the user whose password will be changed."),
     )
     old_password = serializers.CharField(
         required=True,
         write_only=True,
         style={"input_type": "password"},
-        help_text=_("Current password of the user.")
+        help_text=_("Current password of the user."),
     )
     new_password = serializers.CharField(
         required=True,
         write_only=True,
         style={"input_type": "password"},
-        help_text=_("New password to be set for the user.")
+        help_text=_("New password to be set for the user."),
     )
     confirm_new_password = serializers.CharField(
         required=True,
         write_only=True,
         style={"input_type": "password"},
-        help_text=_("Confirmation of the new password.")
+        help_text=_("Confirmation of the new password."),
     )
 
     def validate_uuid(self, value):
@@ -104,11 +104,14 @@ class CustomUserSerializer(serializers.ModelSerializer):
     Serializer for the CustomUser model. Includes all fields except
     for 'uuid', 'is_staff', and 'is_active', which are read-only.
     """
+
     email = serializers.SerializerMethodField()
     first_name = serializers.SerializerMethodField()
     last_name = serializers.SerializerMethodField()
     is_staff = serializers.SerializerMethodField()
     is_active = serializers.SerializerMethodField()
+    roles = serializers.StringRelatedField(many=True)
+    parent_accounts = serializers.StringRelatedField(many=True)
 
     class Meta:
         model = CustomUser
@@ -120,7 +123,8 @@ class CustomUserSerializer(serializers.ModelSerializer):
             "is_active",
             "is_staff",
             "id_card",
-            "role",
+            "roles",
+            "parent_accounts",
         )
         read_only_fields = ("uuid", "is_staff", "is_active")
 
@@ -150,3 +154,16 @@ class CustomUserSerializer(serializers.ModelSerializer):
         Overwrites the update method to prevent updates.
         """
         raise serializers.ValidationError("Update operation is not allowed.")
+
+class CustomUserTreeSerializer(CustomUserSerializer):
+    """
+    Serializer for the CustomUser model that includes a tree of child accounts.
+    Inherits from CustomUserSerializer to reuse common logic.
+    """
+    child_accounts = serializers.SerializerMethodField()
+
+    class Meta(CustomUserSerializer.Meta):
+        fields = CustomUserSerializer.Meta.fields + ('child_accounts',)
+
+    def get_child_accounts(self, obj):
+        return CustomUserTreeSerializer(obj.child_accounts.all(), many=True).data
