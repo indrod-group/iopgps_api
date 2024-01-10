@@ -2,11 +2,12 @@ from rest_framework import viewsets, mixins, filters, status
 from rest_framework.response import Response
 from rest_framework.request import Request
 
-from .models import CustomUser
+from .models import CustomUser, PhoneNumber
 from .serializers import (
     ChangePasswordSerializer,
     CustomUserSerializer,
-    CustomUserTreeSerializer
+    CustomUserTreeSerializer,
+    PhoneNumberSerializer
 )
 
 
@@ -71,3 +72,26 @@ class ChangePasswordViewSet(mixins.UpdateModelMixin, viewsets.GenericViewSet):
         Overwrites the partial_update method to prevent partial updates.
         """
         raise NotImplementedError("Partial update operation is not allowed.")
+
+class PhoneNumberViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows phone numbers to be viewed or edited.
+    """
+    serializer_class = PhoneNumberSerializer
+
+    def get_queryset(self):
+        """
+        Overwrite the get_queryset method to return only
+        the phone numbers of the user being retrieved.
+        """
+        uuid = self.kwargs.get('pk')
+        return PhoneNumber.objects.filter(user__uuid=uuid)
+
+    def perform_create(self, serializer):
+        """
+        Overwrite the perform_create method to set the user
+        of the phone number being created.
+        """
+        uuid = self.kwargs.get('pk')
+        user = CustomUser.objects.get(uuid=uuid)
+        serializer.save(user=user)

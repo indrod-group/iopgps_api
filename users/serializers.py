@@ -3,7 +3,7 @@ from django.contrib.auth import password_validation
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 
-from .models import CustomUser
+from .models import CustomUser, PhoneNumber
 
 
 class ChangePasswordSerializer(serializers.Serializer):
@@ -167,3 +167,9 @@ class CustomUserTreeSerializer(CustomUserSerializer):
 
     def get_child_accounts(self, obj):
         return CustomUserTreeSerializer(obj.child_accounts.all(), many=True).data
+
+
+class PhoneNumberSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PhoneNumber
+        fields = ['phone_number',]

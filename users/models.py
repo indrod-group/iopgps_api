@@ -3,6 +3,7 @@ import uuid
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from phonenumber_field.modelfields import PhoneNumberField
 
 
 class Roles(models.TextChoices):
@@ -63,3 +64,22 @@ class CustomUser(models.Model):
 
     def __str__(self) -> str:
         return f"{self.user}"
+
+class PhoneNumber(models.Model):
+    """
+    Model to represent a user's phone numbers.
+    Each instance of this model represents a phone number that is associated with a user.
+    """
+    user = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        help_text=_("The user to whom this phone number belongs")
+    )
+    phone_number = PhoneNumberField(
+        blank=True,
+        null=True,
+        help_text=_("User's phone number")
+    )
+
+    def __str__(self) -> str:
+        return f"{self.phone_number}"

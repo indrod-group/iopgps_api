@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import CustomUser, Role
+from .models import CustomUser, Role, PhoneNumber
 
 @admin.register(Role)
 class RoleAdmin(admin.ModelAdmin):
@@ -31,3 +31,13 @@ class CustomUserAdmin(admin.ModelAdmin):
     def display_parent_accounts(self, obj):
         return ", ".join([parent_account.user.username for parent_account in obj.parent_accounts.all()])
     display_parent_accounts.short_description = 'Parent Accounts'
+
+@admin.register(PhoneNumber)
+class PhoneNumberAdmin(admin.ModelAdmin):
+    """
+    Admin interface for the PhoneNumber model.
+    Displays the user and phone number in the list view.
+    Allows searching by user and phone number.
+    """
+    list_display = ['user', 'phone_number']
+    search_fields = ['user__user__username', 'phone_number']
