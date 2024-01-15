@@ -1,6 +1,7 @@
 from collections import OrderedDict
 import os
 from typing import Optional
+from time import time
 
 import requests
 from rest_framework import serializers
@@ -77,8 +78,11 @@ class AlarmSerializer(serializers.ModelSerializer):
         lat = validated_data.get("lat", None)
         lng = validated_data.get("lng", None)
         address: Optional[str] = validated_data.get("address", None)
-        if lat is not None and lng is not None and (address is None or address == ""):
-            validated_data["address"] = get_address(lat, lng)
+        alarm_time = validated_data.get("time", int(time()))
+        current_time = int(time())
+        if current_time - 86400 <= alarm_time <= current_time:
+            if lat is not None and lng is not None and (address is None or address == ""):
+                validated_data["address"] = get_address(lat, lng)
 
         alarm = Alarm.objects.create(device=device, **validated_data)
         return alarm
