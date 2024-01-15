@@ -29,15 +29,23 @@ SECRET_KEY = os.environ.get(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = 'RENDER' not in os.environ
 
-# AWS Instances allowed
-ALLOWED_HOSTS = [
-    '18.232.93.47', '0.0.0.0'
-]
+ALLOWED_HOSTS = []
 
-RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+EXTERNAL_ALLOWED_HOSTS: str = os.getenv('ALLOWED_HOSTS')
+if EXTERNAL_ALLOWED_HOSTS:
+    ALLOWED_HOSTS.extend(EXTERNAL_ALLOWED_HOSTS.split(','))
 
-if RENDER_EXTERNAL_HOSTNAME:
-    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+CORS_ORIGIN_WHITELIST = []
+
+EXTERNAL_CORS_ORIGIN: str = os.getenv('CORS_ORIGIN_WHITELIST')
+if EXTERNAL_CORS_ORIGIN:
+    CORS_ORIGIN_WHITELIST.extend(EXTERNAL_CORS_ORIGIN.split(','))
+
+CSRF_TRUSTED_ORIGINS = []
+
+EXTERNAL_CSRF_TRUSTED_ORIGINS: str = os.getenv('CSRF_TRUSTED_ORIGINS')
+if EXTERNAL_CSRF_TRUSTED_ORIGINS:
+    CSRF_TRUSTED_ORIGINS.extend(EXTERNAL_CSRF_TRUSTED_ORIGINS.split(','))
 
 # Application definition
 INSTALLED_APPS = [
@@ -144,21 +152,6 @@ if not DEBUG:    # Tell Django to copy statics to the `staticfiles` directory
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-CORS_ORIGIN_WHITELIST = [
-    'http://localhost:5173',
-    'http://localhost:5174',
-    'http://192.168.0.110:5174',
-    'https://twlxb59c-5173.use2.devtunnels.ms',
-    'https://twlxb59c-5174.use2.devtunnels.ms',
-    'http://18.232.93.47',
-    'http://0.0.0.0:9090'
-]
-
-CSRF_TRUSTED_ORIGINS = [
-    'http://18.232.93.47',
-    'http://0.0.0.0:9090',
-]
 
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
