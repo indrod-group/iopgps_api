@@ -128,15 +128,10 @@ class DeviceViewSet(viewsets.ModelViewSet):
         """
         imei = request.data.get("imei")
         if imei is not None:
-            device = Device.objects.filter(imei=imei).first()
-            if device is not None:
-                # If the user exists, we update their data
-                serializer = self.get_serializer(
-                    device, data=self.__get_data_from_request(request)
-                )
-                serializer.is_valid(raise_exception=True)
-                self.perform_update(serializer)
-                return Response(serializer.data)
+            data = self.__get_data_from_request(request)
+            device, _ = Device.objects.update_or_create(imei=imei, defaults=data)
+            serializer = self.get_serializer(device)
+            return Response(serializer.data, status=status.HTTP_200_OK)  # Retorna 200 OK
 
         # If the imei does not exist or the user does not exist, we return an error
         return Response(status=status.HTTP_404_NOT_FOUND)
