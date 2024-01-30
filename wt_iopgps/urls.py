@@ -30,5 +30,6 @@ urlpatterns = [
     path(API_URL_BASE, include("users.urls")),
     path(API_URL_BASE, include("routes.urls")),
     path(API_URL_BASE, include("vehicles.urls")),
-    path(API_URL_BASE, include("licenses.urls"))
+    path(API_URL_BASE, include("licenses.urls")),
+    path(API_URL_BASE, include("maintenance_manuals.urls")),
 ]

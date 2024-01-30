@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     'alarms',
     'devices',
     'licenses',
+    'maintenance_manuals',
     'routes',
     'users',
     'vehicles',
