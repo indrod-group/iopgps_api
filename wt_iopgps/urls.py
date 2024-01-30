@@ -19,13 +19,16 @@ from django.urls import path, include
 from rest_framework.authtoken import views
 from rest_framework.documentation import include_docs_urls
 
+API_URL_BASE = "api/v1/"
+
 urlpatterns = [
     path("api_generate_token/", views.obtain_auth_token),
     path("admin/", admin.site.urls),
     path("documentation/", include_docs_urls(title="Developer API documentation")),
-    path("api/v1/", include("alarms.urls")),
-    path("api/v1/", include("devices.urls")),
-    path("api/v1/", include("users.urls")),
-    path("api/v1/", include("routes.urls")),
-    path("api/v1/", include("vehicles.urls")),
+    path(API_URL_BASE, include("alarms.urls")),
+    path(API_URL_BASE, include("devices.urls")),
+    path(API_URL_BASE, include("users.urls")),
+    path(API_URL_BASE, include("routes.urls")),
+    path(API_URL_BASE, include("vehicles.urls")),
+    path(API_URL_BASE, include("licenses.urls"))
 ]
