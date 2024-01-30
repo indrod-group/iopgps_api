@@ -64,7 +64,8 @@ INSTALLED_APPS = [
     'alarms',
     'devices',
     'routes',
-    'users'
+    'users',
+    'vehicles'
 ]
 
 MIDDLEWARE = [
