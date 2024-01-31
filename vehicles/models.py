@@ -1,5 +1,4 @@
 import uuid
-import time
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -149,7 +148,7 @@ class VehicleStatus(models.Model):
         help_text=_("Condition of the vehicle"),
     )
     status_updated_at = models.PositiveBigIntegerField(
-        default=int(time.time()), help_text=_("The date the status was updated")
+        help_text=_("The date the status was updated")
     )
 
     class Meta:
@@ -186,7 +185,7 @@ class TrackableItem(models.Model):
     """
 
     registration_date = models.PositiveBigIntegerField(
-        default=int(time.time()), help_text=_("The date the item was registered")
+        help_text=_("The date the item was registered")
     )
     in_use = models.BooleanField(
         default=True, help_text=_("Whether the item is currently in use")
