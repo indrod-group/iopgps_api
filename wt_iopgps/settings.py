@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     'devices',
     'licenses',
     'maintenance_manuals',
+    'mileage',
     'routes',
     'users',
     'vehicles',
