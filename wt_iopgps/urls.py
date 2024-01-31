@@ -33,4 +33,5 @@ urlpatterns = [
     path(API_URL_BASE, include("licenses.urls")),
     path(API_URL_BASE, include("maintenance_manuals.urls")),
     path(API_URL_BASE, include("mileage.urls")),
+    path(API_URL_BASE, include("work_orders.urls")),
 ]

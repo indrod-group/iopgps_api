@@ -69,6 +69,7 @@ INSTALLED_APPS = [
     'routes',
     'users',
     'vehicles',
+    'work_orders'
 ]
 
 MIDDLEWARE = [
