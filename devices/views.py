@@ -9,6 +9,7 @@ from .models import Device, UserDevice, CustomUser
 from .serializers import (
     DeviceSerializer,
     UserDeviceSerializer,
+    UserPhoneDeviceSerializer
 )
 
 GetParam = namedtuple("str", ["param", "default_value", "description", "true_value"])
@@ -148,3 +149,27 @@ class DeviceViewSet(viewsets.ModelViewSet):
 
         # If the imei does not exist or the user does not exist, we return an error
         return Response(status=status.HTTP_404_NOT_FOUND)
+
+class UserPhoneDeviceList(viewsets.ReadOnlyModelViewSet):
+    """
+    A viewset for read-only operations on UserDevice instances.
+
+    This viewset uses the UserPhoneDeviceSerializer and includes a custom
+    get_queryset method to optionally filter the UserDevices by their IMEI.
+    """
+    serializer_class = UserPhoneDeviceSerializer
+
+    def get_queryset(self):
+        """
+        Retrieves the queryset of UserDevice instances for this viewset.
+
+        The queryset can be optionally filtered to include only UserDevices
+        with a specific IMEI, if an 'imei' keyword argument is included in the URL.
+
+        Returns:
+            - QuerySet: The queryset of UserDevice instances.
+        """
+        imei = self.kwargs.get('imei', None)
+        if imei is not None:
+            return UserDevice.objects.filter(device__imei=imei)
+        return UserDevice.objects.none()
