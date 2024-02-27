@@ -1,5 +1,6 @@
+from collections import OrderedDict
 from rest_framework import serializers
-
+from rest_framework.reverse import reverse
 from devices.serializers import DeviceSerializer
 from .models import (
     Battery,
@@ -45,10 +46,20 @@ class VehicleSerializer(serializers.ModelSerializer):
 
 
 class VehicleStatusSerializer(serializers.ModelSerializer):
+    vehicle = serializers.PrimaryKeyRelatedField(
+        queryset=Vehicle.objects.all(),
+        write_only=True
+    )
+
     class Meta:
         model = VehicleStatus
         fields = ["vehicle", "condition", "status_updated_at"]
 
+    def create(self, validated_data: OrderedDict):
+        return VehicleStatus.objects.create(**validated_data)
+
+    update = None
+    partial_update = None
 
 class UserVehicleSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField()
@@ -61,11 +72,20 @@ class UserVehicleSerializer(serializers.ModelSerializer):
             "vehicles",
         ]
 
+    create = None
+    update = None
+    partial_update = None
 
 class TireSerializer(serializers.ModelSerializer):
+    vehicle = serializers.PrimaryKeyRelatedField(
+        queryset=Vehicle.objects.all(),
+        write_only=True
+    )
+
     class Meta:
         model = Tire
         fields = [
+            "id",
             "vehicle",
             "manufacturing_code",
             "position_relative_to_vehicle",
@@ -77,11 +97,22 @@ class TireSerializer(serializers.ModelSerializer):
             "cost",
         ]
 
+    def create(self, validated_data: OrderedDict):
+        return Tire.objects.create(**validated_data)
 
-class BatterySerializer(serializers.ModelSerializer):
+    update = None
+    partial_update = None
+
+class VehicleBatterySerializer(serializers.ModelSerializer):
+    vehicle = serializers.PrimaryKeyRelatedField(
+        queryset=Vehicle.objects.all(),
+        write_only=True
+    )
+
     class Meta:
         model = Battery
         fields = [
+            "id",
             "vehicle", 
             "manufacturing_code",
             "registration_date",
@@ -91,3 +122,9 @@ class BatterySerializer(serializers.ModelSerializer):
             "manufacturer",
             "cost",
         ]
+
+    def create(self, validated_data: OrderedDict):
+        return Battery.objects.create(**validated_data)
+
+    update = None
+    partial_update = None
