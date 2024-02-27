@@ -62,14 +62,17 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'alarms',
+    'batteries',
     'devices',
     'licenses',
     'maintenance_manuals',
     'mileage',
     'routes',
+    'statuses',
+    'tires',
     'users',
     'vehicles',
-    'work_orders'
+    'work_orders',
 ]
 
 MIDDLEWARE = [

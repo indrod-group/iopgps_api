@@ -26,6 +26,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("documentation/", include_docs_urls(title="Developer API documentation")),
     path(API_URL_BASE, include("alarms.urls")),
+    path(API_URL_BASE, include("batteries.urls")),
     path(API_URL_BASE, include("devices.urls")),
     path(API_URL_BASE, include("users.urls")),
     path(API_URL_BASE, include("routes.urls")),
@@ -33,5 +34,7 @@ urlpatterns = [
     path(API_URL_BASE, include("licenses.urls")),
     path(API_URL_BASE, include("maintenance_manuals.urls")),
     path(API_URL_BASE, include("mileage.urls")),
+    path(API_URL_BASE, include("statuses.urls")),
+    path(API_URL_BASE, include("tires.urls")),
     path(API_URL_BASE, include("work_orders.urls")),
 ]
