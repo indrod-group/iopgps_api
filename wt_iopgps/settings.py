@@ -47,6 +47,13 @@ EXTERNAL_CSRF_TRUSTED_ORIGINS: str = os.getenv('CSRF_TRUSTED_ORIGINS')
 if EXTERNAL_CSRF_TRUSTED_ORIGINS:
     CSRF_TRUSTED_ORIGINS.extend(EXTERNAL_CSRF_TRUSTED_ORIGINS.split(','))
 
+if not DEBUG:
+    # Allows SSL if the api is running in production
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_SSL_REDIRECT = True
+
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
