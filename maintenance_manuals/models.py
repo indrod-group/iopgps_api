@@ -16,8 +16,9 @@ class MaintenanceManual(models.Model):
         - vehicle (Vehicle): The vehicle to which the maintenance sheet belongs.
         - operations (list[Operation]): The maintenance operations to be performed on the vehicle.
     """
-    vehicle = models.OneToOneField(
+    vehicle = models.ForeignKey(
         Vehicle,
+        related_name='vehicle_manual',
         on_delete=models.PROTECT,
         help_text=_("The vehicle to which the maintenance manual belongs.")
     )
@@ -80,7 +81,7 @@ class MaintenanceOperation(models.Model):
     maintenance_manual = models.ForeignKey(
         MaintenanceManual,
         on_delete=models.PROTECT,
-        related_name='vehicle_systems',
+        related_name='manual_tasks',
         help_text=_("Maintenance manual to which this system belongs.")
     )
     system =  models.CharField(
@@ -131,4 +132,4 @@ class MaintenanceOperation(models.Model):
         verbose_name_plural = _("Maintenance operations")
 
     def __str__(self):
-        return f'{self.task} every {self.frequency} {self.maintenance_manual.unit}'
+        return f'{self.task} every {self.frequency}'
