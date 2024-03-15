@@ -67,6 +67,18 @@ class License(models.Model):
         validators=[MinValueValidator(0), MaxValueValidator(30)],
         help_text=_("Current points of the license.")
     )
+    front_image = models.ImageField(
+        upload_to='licenses/',
+        null=True,
+        blank=True,
+        help_text="Upload the front image of the license."
+    )
+    back_image = models.ImageField(
+        upload_to='licenses/',
+        null=True,
+        blank=True,
+        help_text="Upload the back image of the license."
+    )
 
     def __str__(self):
         return f'{self.type} - {self.expiry_date}'
