@@ -36,7 +36,7 @@ class UserVehicleReadViewSet(viewsets.ReadOnlyModelViewSet):
         if pk is not None:
             user = get_object_or_404(CustomUser, uuid=pk)
             return Vehicle.objects.filter(uservehicle__user=user)
-        return Vehicle.objects.none() 
+        return Vehicle.objects.none()
 
 class VehicleTypeViewSet(viewsets.ModelViewSet):
     queryset = VehicleType.objects.all()
@@ -106,7 +106,7 @@ class VehicleBatteryReadAndCreate(
         which corresponds to the 'vuid' of the vehicle.
         If the 'vuid' is None or does not exist, it returns an empty queryset.
         """
-        vuid: Optional[str] = self.kwargs.get("pk")
+        vuid: Optional[str] = self.kwargs.get("vuid")
         if vuid is not None:
             vehicle = get_object_or_404(Vehicle, vuid=vuid)
             return Battery.objects.filter(vehicle=vehicle)

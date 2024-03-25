@@ -1,10 +1,12 @@
 import uuid
 
 from django.db import models
+from django.core.validators import RegexValidator
 from django.utils.translation import gettext_lazy as _
 
 from devices.models import Device
 from users.models import CustomUser
+from vehicles.utils import path_and_rename
 
 from .enums import (
     Colors,
@@ -61,16 +63,25 @@ class VehicleType(models.Model):
         help_text=_("Type of the vehicle"),
     )
     city_mileage = models.DecimalField(
-        blank=True, max_digits=5, decimal_places=2, help_text=_("City fuel efficiency")
+        default="0.0",
+        blank=True,
+        max_digits=5,
+        decimal_places=2,
+        help_text=_("City fuel efficiency"),
     )
     highway_mileage = models.DecimalField(
+        default="0.0",
         blank=True,
         max_digits=5,
         decimal_places=2,
         help_text=_("Highway fuel efficiency"),
     )
     mixed_mileage = models.DecimalField(
-        blank=True, max_digits=5, decimal_places=2, help_text=_("Mixed fuel efficiency")
+        default="0.0",
+        blank=True,
+        max_digits=5,
+        decimal_places=2,
+        help_text=_("Mixed fuel efficiency"),
     )
 
     class Meta:
@@ -103,10 +114,10 @@ class Vehicle(models.Model):
         help_text=_("Device installed in the vehicle"),
     )
     color = models.CharField(
-        max_length=31,
+        max_length=6,
         default=Colors.WHITE,
-        choices=Colors.choices,
-        help_text=_("Color of the vehicle"),
+        validators=[RegexValidator(r'^[0-9A-Fa-f]{6}$')],
+        help_text=_("Color of the vehicle in hexadecimal"),
     )
     chassis = models.CharField(
         blank=True, max_length=255, help_text=_("Chassis number of the vehicle")
@@ -125,6 +136,36 @@ class Vehicle(models.Model):
     )
     vin = models.CharField(
         blank=True, max_length=31, help_text=_("Vehicle Identification Number (VIN)")
+    )
+    front_photo = models.ImageField(
+        upload_to=path_and_rename,
+        null=True,
+        blank=True,
+        help_text=_("Front photo of the vehicle"),
+    )
+    left_side_photo = models.ImageField(
+        upload_to=path_and_rename,
+        null=True,
+        blank=True,
+        help_text=_("Left side photo of the vehicle"),
+    )
+    right_side_photo = models.ImageField(
+        upload_to=path_and_rename,
+        null=True,
+        blank=True,
+        help_text=_("Right side photo of the vehicle"),
+    )
+    rear_photo = models.ImageField(
+        upload_to=path_and_rename,
+        null=True,
+        blank=True,
+        help_text=_("Rear photo of the vehicle"),
+    )
+    heavy_transport_permit = models.FileField(
+        upload_to=path_and_rename,
+        null=True,
+        blank=True,
+        help_text=_("Heavy transport permit of the vehicle"),
     )
 
     class Meta:

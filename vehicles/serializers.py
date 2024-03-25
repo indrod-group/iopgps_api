@@ -1,6 +1,5 @@
 from collections import OrderedDict
 from rest_framework import serializers
-from rest_framework.reverse import reverse
 from devices.serializers import DeviceSerializer
 from .models import (
     Battery,
@@ -42,6 +41,10 @@ class VehicleSerializer(serializers.ModelSerializer):
             "plate",
             "tonnage",
             "vin",
+            "front_photo",
+            "left_side_photo",
+            "right_side_photo",
+            "rear_photo",
         ]
 
 
