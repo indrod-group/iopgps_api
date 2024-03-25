@@ -125,6 +125,11 @@ class CustomUserSerializer(serializers.ModelSerializer):
             "id_card",
             "roles",
             "parent_accounts",
+            "birth_date",
+            "marital_status",
+            "education_level",
+            "home_address",
+            "photo",
         )
         read_only_fields = ("uuid", "is_staff", "is_active")
 

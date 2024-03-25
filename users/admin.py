@@ -29,7 +29,9 @@ class CustomUserAdmin(admin.ModelAdmin):
     display_roles.short_description = 'Roles'
 
     def display_parent_accounts(self, obj):
-        return ", ".join([parent_account.user.username for parent_account in obj.parent_accounts.all()])
+        return ", ".join([
+            parent_account.user.username for parent_account in obj.parent_accounts.all()
+        ])
     display_parent_accounts.short_description = 'Parent Accounts'
 
 @admin.register(PhoneNumber)
