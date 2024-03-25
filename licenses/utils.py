@@ -19,5 +19,5 @@ def path_and_rename(instance, filename: str):
     """
     upload_to = 'licenses/'
     ext = filename.split('.')[-1]
-    filename = f'{uuid5(instance.id, filename).hex}.{ext}'
+    filename = f'{uuid5(instance.driver.uuid, filename).hex}.{ext}'
     return os.path.join(upload_to, filename)
