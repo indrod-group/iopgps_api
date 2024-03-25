@@ -4,7 +4,9 @@ from django.utils.translation import gettext_lazy as _
 
 from users.models import CustomUser
 
+from .utils import path_and_rename
 from .validators import validate_issue_date, validate_license_validity
+
 
 class LicenseTypes(models.TextChoices):
     """
@@ -16,6 +18,7 @@ class LicenseTypes(models.TextChoices):
     - D: For buses.
     - E: For articulated vehicles.
     """
+
     A = "A", _("A")
     B = "B", _("B")
     A1 = "A1", _("A1")
@@ -41,44 +44,49 @@ class License(models.Model):
     Methods:
         is_valid(): Returns the validity of the license over time.
     """
+
     driver = models.ForeignKey(
         CustomUser,
         on_delete=models.CASCADE,
         related_name="licenses",
-        help_text=_("Driver to whom this license belongs.")
+        help_text=_("Driver to whom this license belongs."),
     )
     type = models.CharField(
         max_length=2,
         choices=LicenseTypes.choices,
-        help_text=_("The type of the license (A, B, C, etc.).")
+        help_text=_("The type of the license (A, B, C, etc.)."),
     )
     issue_date = models.DateField(
         blank=False,
-        validators=[validate_issue_date,],
-        help_text=_("The issue date of the license.")
+        validators=[
+            validate_issue_date,
+        ],
+        help_text=_("The issue date of the license."),
     )
     expiry_date = models.DateField(
         blank=False,
-        validators=[validate_license_validity,],
+        validators=[
+            validate_license_validity,
+        ],
         help_text=_("The expiry date of the license."),
     )
     points = models.PositiveSmallIntegerField(
         blank=False,
         validators=[MinValueValidator(0), MaxValueValidator(30)],
-        help_text=_("Current points of the license.")
+        help_text=_("Current points of the license."),
     )
     front_image = models.ImageField(
-        upload_to='licenses/',
+        upload_to=path_and_rename,
         null=True,
         blank=True,
-        help_text="Upload the front image of the license."
+        help_text=_("Upload the front image of the license."),
     )
     back_image = models.ImageField(
-        upload_to='licenses/',
+        upload_to=path_and_rename,
         null=True,
         blank=True,
-        help_text="Upload the back image of the license."
+        help_text=_("Upload the back image of the license."),
     )
 
     def __str__(self):
-        return f'{self.type} - {self.expiry_date}'
+        return f"{self.type} - {self.expiry_date}"

@@ -5,6 +5,8 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from phonenumber_field.modelfields import PhoneNumberField
 
+from .utils import path_and_rename
+
 
 class Roles(models.TextChoices):
     """
@@ -112,7 +114,7 @@ class CustomUser(models.Model):
         max_length=256, blank=True, null=True, help_text=_("User's home address")
     )
     photo = models.ImageField(
-        upload_to="users/", null=True, blank=True, help_text=_("User's photo")
+        upload_to=path_and_rename, null=True, blank=True, help_text=_("User's photo")
     )
 
     def __str__(self) -> str:
