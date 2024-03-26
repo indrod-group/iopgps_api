@@ -1,24 +1,45 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-class OdometerUnit(models.TextChoices):
+
+class DistanceUnit(models.TextChoices):
     """
-    Enumeration of the different units for measuring mileage.
+    Enumeration of the different units for measuring distance
+    according to the International System of Units.
     """
-    KILOMETERS = 'km', _('Kilometers')
-    MILES = 'mi', _('Miles')
-    HOURS = "hours", _('Hours')
-    DAYS = 'days', _('Days')
-    WEEKS = 'weeks', _('Weeks')
-    MONTHS = 'months', _('Months')
+
+    METERS = "m", _("Meters")
+    KILOMETERS = "km", _("Kilometers")
+    MILES = "mi", _("Miles")
+    NAUTICAL_MILES = "nmi", _("Nautical Miles")
+
+
+class TimeUnits(models.TextChoices):
+    """
+    Enumeration of the different units for measuring time
+    according to the International System of Units.
+    """
+
+    MINUTES = "min", _("Minutes")
+    HOURS = "h", _("Hours")
+    DAYS = "d", _("Days")
+    WEEKS = "w", _("Weeks")
+    MONTHS = "m", _("Months")
+    YEARS = "y", _("Years")
+
 
 class Tasks(models.TextChoices):
     """
     Enumeration of the maintenance tasks that can be performed
     on a vehicle within the maintenance manual.
     """
-    INSPECT = 'I', _('Inspect and correct or replace if necessary.')
-    ADJUST = 'A', _('Adjust.')
-    REPLACE = 'R', _('Replace or change.')
-    TORQUE = 'T', _('Tighten to specified torque.')
-    LUBRICATE = 'L', _('Lubricate and/or grease.')
+
+    INSPECT = "I", _("Inspect and correct or replace if necessary.")
+    ADJUST = "A", _("Adjust.")
+    REPLACE = "R", _("Replace or change.")
+    TORQUE = "T", _("Tighten to specified torque.")
+    LUBRICATE = "L", _("Lubricate and/or grease.")
+    CLEAN = "C", _("Clean.")
+    CHECK = "CK", _("Check.")
+    TEST = "TS", _("Test.")
+    SERVICE = "SV", _("Service.")

@@ -1,65 +1,67 @@
 from django.db import models
+from django.core.validators import RegexValidator
 from django.utils.translation import gettext_lazy as _
 
 from vehicles.models import Vehicle
 
 from .enums import (
     Tasks,
-    OdometerUnit
 )
+
+DISTANCE_VALIDATOR = r"(\d+(([hkn]{0,1}|da)m(i){0,1})|\-)"
+TIME_VALIDATOR = r"(\d{1,4}(h|d|w|m|y)|\-)"
+FRECUENCY_VALIDATOR = rf"^{DISTANCE_VALIDATOR},{DISTANCE_VALIDATOR},{TIME_VALIDATOR}$"
+
 
 class MaintenanceManual(models.Model):
     """
     Represents a maintenance manual for a vehicle.
-
-    Attributes:
-        - vehicle (Vehicle): The vehicle to which the maintenance sheet belongs.
-        - operations (list[Operation]): The maintenance operations to be performed on the vehicle.
     """
+
     vehicle = models.ForeignKey(
         Vehicle,
-        related_name='vehicle_manual',
+        related_name="vehicle_manual",
         on_delete=models.PROTECT,
-        help_text=_("The vehicle to which the maintenance manual belongs.")
+        help_text=_("The vehicle to which the maintenance manual belongs."),
     )
     start_date = models.DateField(
-        blank=False,
-        help_text=_("The start date of the maintenance cycle.")
+        blank=False, help_text=_("The start date of the maintenance cycle.")
     )
-    advance_alerts_mileage = models.DecimalField(
-        _('Advance alerts'),
-        max_digits=10,
-        decimal_places=2,
+    advance_alerts = models.CharField(
+        _("Advance alerts"),
+        default="-,-,-",
+        max_length=64,
+        validators=[RegexValidator(FRECUENCY_VALIDATOR)],
         blank=False,
-        help_text=_("Using this value it is possible to anticipate maintenance in advance.")
+        help_text=_(
+            "Using this value it is possible to anticipate maintenance in advance."
+        ),
     )
-    advance_alerts_days = models.DecimalField(
-        _('Advance alerts'),
-        max_digits=10,
-        decimal_places=2,
+    minimum_frequency = models.CharField(
+        _("Minimum frequency"),
+        default="-,-,-",
+        max_length=64,
         blank=False,
-        help_text=_("Using this value it is possible to anticipate maintenance in advance.")
+        validators=[RegexValidator(FRECUENCY_VALIDATOR)],
+        help_text=_(
+            "The minimum mileage/time at which operations should be performed."
+        ),
     )
-    minimum_frequency = models.DecimalField(
-        _('Minimum frequency'),
-        max_digits=10,
-        decimal_places=2,
+    end_of_cycle = models.CharField(
+        _("End of maintenance cycle"),
+        default="-,-,-",
+        max_length=64,
         blank=False,
-        help_text=_("The minimum mileage/time at which operations should be performed.")
+        validators=[RegexValidator(FRECUENCY_VALIDATOR)],
+        help_text=_(
+            "The mileage/time limit that marks the end of each maintenance cycle."
+        ),
     )
-    end_of_cycle = models.DecimalField(
-        _('End of maintenance cycle'),
-        max_digits=10,
-        decimal_places=2,
-        blank=False,
-        help_text=_("The mileage/time limit that marks the end of each maintenance cycle.")
-    )
-    unit = models.CharField(
-        _('Unit'),
-        max_length=10,
-        blank=False,
-        choices=OdometerUnit.choices,
-        help_text=_("The unit of measure of the mileage.")
+    manual_file = models.FileField(
+        upload_to="manuals/",
+        null=True,
+        blank=True,
+        help_text=_("The original maintenance manual document."),
     )
 
     class Meta:
@@ -68,9 +70,9 @@ class MaintenanceManual(models.Model):
 
     def __str__(self):
         return (
-            f'{self.vehicle}'
-            f' - Minimum frequency: {self.minimum_frequency} {self.unit}'
-            f' - End of cycle: {self.end_of_cycle} {self.unit}'
+            f"{self.vehicle}"
+            f" - Minimum frequency: {self.minimum_frequency}"
+            f" - End of cycle: {self.end_of_cycle}"
         )
 
 
@@ -78,53 +80,46 @@ class MaintenanceOperation(models.Model):
     """
     Represents a maintenance operation.
     """
+
     maintenance_manual = models.ForeignKey(
         MaintenanceManual,
         on_delete=models.PROTECT,
-        related_name='manual_tasks',
-        help_text=_("Maintenance manual to which this system belongs.")
+        related_name="manual_tasks",
+        help_text=_("Maintenance manual to which this system belongs."),
     )
-    system =  models.CharField(
-        _('System'),
-        max_length=50,
-        blank=False,
-        help_text=_("The vehicle's system.")
+    system = models.CharField(
+        _("System"), max_length=50, blank=False, help_text=_("The vehicle's system.")
     )
     subsystem = models.CharField(
-        _('Sub-system'),
+        _("Sub-system"),
         max_length=50,
         blank=False,
-        help_text=_("Subsystem of the vehicle's main system.")
+        help_text=_("Subsystem of the vehicle's main system."),
     )
     task = models.CharField(
-        _('Task'),
+        _("Task"),
         max_length=50,
         blank=False,
         choices=Tasks.choices,
-        help_text=_("The task to be performed in the operation.")
+        help_text=_("The task to be performed in the operation."),
     )
     description = models.TextField(
-        _('Description'),
+        _("Description"),
         blank=True,
-        help_text=_('Description of the task to be performed')
+        help_text=_("Description of the task to be performed"),
     )
-    frequency = models.DecimalField(
-        _('Frequency'),
-        max_digits=10,
-        decimal_places=2,
+    frequency = models.CharField(
+        _("Frequency"),
+        default="-,-,-",
+        max_length=64,
+        validators=[RegexValidator(FRECUENCY_VALIDATOR)],
         blank=False,
-        help_text=_("The mileage/time at which the operation should be performed.")
-    )
-    frequency_days = models.IntegerField(
-        _('Frequency in days'),
-        blank=True,
-        null=True,
-        help_text=_("The frequency at which the operation should be performed, in days.")
+        help_text=_("The mileage at which the operation should be performed."),
     )
     help_me = models.TextField(
-        _('Help me'),
+        _("Help me"),
         blank=True,
-        help_text=_('Additional information to help perform the maintenance task')
+        help_text=_("Additional information to help perform the maintenance task"),
     )
 
     class Meta:
@@ -132,4 +127,4 @@ class MaintenanceOperation(models.Model):
         verbose_name_plural = _("Maintenance operations")
 
     def __str__(self):
-        return f'{self.task} every {self.frequency}'
+        return f"{self.task} every {self.frequency}"

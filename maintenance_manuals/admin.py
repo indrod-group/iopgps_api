@@ -6,11 +6,9 @@ from .models import MaintenanceManual, MaintenanceOperation
 class MaintenanceManualAdmin(admin.ModelAdmin):
     list_display = [
         "vehicle",
-        "advance_alerts_mileage",
-        "advance_alerts_days",
+        "advance_alerts",
         "minimum_frequency",
         "end_of_cycle",
-        "unit",
     ]
 
 
@@ -23,5 +21,4 @@ class MaintenanceOperationAdmin(admin.ModelAdmin):
         "task",
         "description",
         "frequency",
-        "frequency_days",
     ]

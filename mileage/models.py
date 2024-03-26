@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from maintenance_manuals.enums import OdometerUnit
+from .enums import OdometerUnits
 from vehicles.models import Vehicle
 
 class Mileage(models.Model):
@@ -25,7 +25,7 @@ class Mileage(models.Model):
         _('Unit'),
         max_length=10,
         blank=False,
-        choices=OdometerUnit.choices,
+        choices=OdometerUnits.choices,
         help_text=_("The unit of measure of the mileage.")
     )
     unix_time_registered = models.PositiveBigIntegerField(
