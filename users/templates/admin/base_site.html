@@ -1,0 +1,16 @@
+{% extends "admin/base.html" %}
+{% load i18n static %}
+{% block extrastyle %}
+<link rel="stylesheet" type="text/css" href="{% static 'admin/css/styles.css' %}">
+{% endblock %}
+
+{% block title %}{{ title }} | Administración de flotas{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">
+    <img src="{% static 'indrod-cmyk.svg' %}" alt="Logo" class="logo">
+    <a href="{% url 'admin:index' %}">Administración de flotas</a>
+</h1>
+{% endblock %}
+
+{% block site_title %}Administración de flotas{% endblock %}
