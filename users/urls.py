@@ -8,7 +8,7 @@ from .views import (
 )
 
 router = DefaultRouter()
-router.register(r"users", CustomUserViewSet, basename="user")
+router.register(r"users", CustomUserViewSet, basename="users")
 router.register(r"change-password", ChangePasswordViewSet)
 
 router2 = DefaultRouter()
