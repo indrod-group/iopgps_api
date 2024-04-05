@@ -19,5 +19,5 @@ def path_and_rename(instance, filename: str):
     """
     upload_to = 'manuals/'
     ext = filename.split('.')[-1]
-    filename = f'{uuid5(instance.vehicle.vuid, filename).hex}.{ext}'
+    filename = f'{uuid5(instance.muid, filename).hex}.{ext}'
     return os.path.join(upload_to, filename)

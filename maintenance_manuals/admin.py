@@ -5,7 +5,9 @@ from .models import MaintenanceManual, MaintenanceOperation
 @admin.register(MaintenanceManual)
 class MaintenanceManualAdmin(admin.ModelAdmin):
     list_display = [
-        "vehicle",
+        "muid",
+        "vehicle_type",
+        "start_date",
         "advance_alerts",
         "minimum_frequency",
         "end_of_cycle",
@@ -15,7 +17,7 @@ class MaintenanceManualAdmin(admin.ModelAdmin):
 @admin.register(MaintenanceOperation)
 class MaintenanceOperationAdmin(admin.ModelAdmin):
     list_display = [
-        "maintenance_manual",
+        "manual",
         "system",
         "subsystem",
         "task",
