@@ -4,11 +4,16 @@ from typing import Optional
 from time import time
 
 import requests
+from django.db.models import Q
 from rest_framework import serializers
 
 from devices.models import Device
 
 from .models import Alarm
+
+
+TEN_METER_IN_GRADES = 0.00008983111
+
 
 def get_address(lat: str, lng: str):
     """
@@ -22,6 +27,14 @@ def get_address(lat: str, lng: str):
     Returns:
         - str: The address of the location if the request was successful, None otherwise.
     """
+    existing_alarm = Alarm.objects.filter(
+        Q(lat__gte=lat - TEN_METER_IN_GRADES)
+        & Q(lat__lte=lat + TEN_METER_IN_GRADES)
+        & Q(lng__gte=lng - TEN_METER_IN_GRADES)
+        & Q(lng__lte=lng + TEN_METER_IN_GRADES)
+    ).first()
+    if existing_alarm is not None:
+        return existing_alarm.address
     try:
         api_key = os.getenv("GEOAPIFY_KEY")
         response = requests.get(
@@ -40,6 +53,7 @@ def get_address(lat: str, lng: str):
             return first_feature["properties"]["formatted"]
 
     return None
+
 
 class AlarmSerializer(serializers.ModelSerializer):
     """
@@ -80,9 +94,19 @@ class AlarmSerializer(serializers.ModelSerializer):
         address: Optional[str] = validated_data.get("address", None)
         alarm_time = validated_data.get("time", int(time()))
         current_time = int(time())
-        if current_time - 86400 <= alarm_time <= current_time:
-            if lat is not None and lng is not None and (address is None or address == ""):
-                validated_data["address"] = get_address(lat, lng)
+
+        def is_today_the_alarm():
+            return current_time - 86400 <= alarm_time <= current_time
+
+        def is_address_empty():
+            return (
+                lat is not None
+                and lng is not None
+                and (address is None or address == "")
+            )
+
+        if is_today_the_alarm() and is_address_empty():
+            validated_data["address"] = get_address(lat, lng)
 
         alarm = Alarm.objects.create(device=device, **validated_data)
         return alarm
