@@ -28,10 +28,10 @@ def get_address(lat: str, lng: str):
         - str: The address of the location if the request was successful, None otherwise.
     """
     existing_alarm = Alarm.objects.filter(
-        Q(lat__gte=lat - TEN_METER_IN_GRADES)
-        & Q(lat__lte=lat + TEN_METER_IN_GRADES)
-        & Q(lng__gte=lng - TEN_METER_IN_GRADES)
-        & Q(lng__lte=lng + TEN_METER_IN_GRADES)
+        Q(lat__gte=float(lat) - TEN_METER_IN_GRADES)
+        & Q(lat__lte=float(lat) + TEN_METER_IN_GRADES)
+        & Q(lng__gte=float(lng) - TEN_METER_IN_GRADES)
+        & Q(lng__lte=float(lng) + TEN_METER_IN_GRADES)
     ).first()
     if existing_alarm is not None:
         return existing_alarm.address
