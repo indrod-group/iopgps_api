@@ -11,10 +11,6 @@ from devices.models import Device
 
 from .models import Alarm
 
-
-TEN_METER_IN_GRADES = 0.00008983111
-
-
 def get_address(lat: str, lng: str):
     """
     Makes a reverse geocoding request to Geoapify
@@ -28,10 +24,7 @@ def get_address(lat: str, lng: str):
         - str: The address of the location if the request was successful, None otherwise.
     """
     existing_alarm = Alarm.objects.filter(
-        Q(lat__gte=float(lat) - TEN_METER_IN_GRADES)
-        & Q(lat__lte=float(lat) + TEN_METER_IN_GRADES)
-        & Q(lng__gte=float(lng) - TEN_METER_IN_GRADES)
-        & Q(lng__lte=float(lng) + TEN_METER_IN_GRADES)
+        lat=float(lat), lng=float(lng)
     ).first()
     if existing_alarm is not None:
         return existing_alarm.address
