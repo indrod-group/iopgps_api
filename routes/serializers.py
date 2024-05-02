@@ -11,7 +11,12 @@ class PositionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Position
-        fields = ["id", "name", "lat", "lng"]
+        fields = [
+            "id",
+            "name",
+            "lat",
+            "lng",
+        ]
 
 
 class RoutePositionSerializer(serializers.ModelSerializer):
@@ -25,7 +30,29 @@ class RoutePositionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RoutePosition
-        fields = ["id", "position", "order", "distance", "estimated_time"]
+        fields = [
+            "id",
+            "position",
+            "order",
+            "alias",
+        ]
+
+    def validate(self, attrs):
+        """
+        Check that the order is a positive number and
+        that there are no duplicate orders for the same route.
+        """
+        if attrs["order"] <= 0:
+            raise serializers.ValidationError("The order must be a positive number.")
+
+        if RoutePosition.objects.filter(
+            route=attrs["route"], order=attrs["order"]
+        ).exists():
+            raise serializers.ValidationError(
+                "The order is already used in this route."
+            )
+
+        return attrs
 
 
 class RouteSerializer(serializers.ModelSerializer):
@@ -38,7 +65,12 @@ class RouteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Route
-        fields = ["id", "name", "positions"]
+        fields = [
+            "id",
+            "name",
+            "description",
+            "positions",
+        ]
 
     def get_positions(self, obj):
         """

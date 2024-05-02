@@ -18,7 +18,7 @@ class RouteAdmin(admin.ModelAdmin):
     Displays the id and name fields in the list view.
     Allows searching by name.
     """
-    list_display = ['id', 'name']
+    list_display = ['id', 'creator', 'name', 'description']
     search_fields = ['name']
 
 @admin.register(RoutePosition)
@@ -28,7 +28,7 @@ class RoutePositionAdmin(admin.ModelAdmin):
     Displays the id, position, route, order, distance, and estimated_time fields in the list view.
     Allows searching by position name and route name.
     """
-    list_display = ['id', 'position', 'route', 'order', 'distance', 'estimated_time']
+    list_display = ['id', 'position', 'route', 'order', 'alias']
     search_fields = ['position__name', 'route__name']
 
 @admin.register(UserRoute)

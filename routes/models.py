@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -10,7 +11,14 @@ class Position(Coordinates):
     Model to represent a geographic position.
     """
 
-    name = models.CharField(max_length=200, help_text=_("Name of the position."))
+    name = models.CharField(
+        max_length=200, help_text=_("Name of the position."), blank=True, null=True
+    )
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self.lat == other.lat and self.lng == other.lng
+        return False
 
     def __str__(self):
         return f"Position(name={self.name}, lat={self.lat}, lng={self.lng})"
@@ -24,11 +32,25 @@ class Route(models.Model):
     Model to represent a route, which is a collection of positions.
     """
 
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False,
+        db_index=True,
+        help_text=_("Unique identifier for the route."),
+    )
+    creator = models.ForeignKey(
+        CustomUser, on_delete=models.CASCADE, related_name="created_routes"
+    )
     name = models.CharField(max_length=200, help_text=_("Name of the route."))
+    description = models.TextField(
+        blank=True, help_text=_("Brief description of the route.")
+    )
     positions = models.ManyToManyField(
         Position,
         through="RoutePosition",
         help_text=_("Positions that make up the route."),
+        symmetrical=False,
     )
 
     def __str__(self):
@@ -54,18 +76,24 @@ class RoutePosition(models.Model):
     order = models.PositiveIntegerField(
         help_text=_("The order of the position in the route.")
     )
-    distance = models.PositiveBigIntegerField(
-        null=True,
+    alias = models.CharField(
+        max_length=200,
+        help_text=_("Alias for the position."),
         blank=True,
-        help_text=_("Distance to the next position in meters."),
     )
-    estimated_time = models.DecimalField(
-        max_digits=21,
-        decimal_places=15,
-        null=True,
-        blank=True,
-        help_text=_("Estimated time to the next position in seconds."),
-    )
+
+    def save(self, *args, **kwargs):
+        if RoutePosition.objects.filter(
+            route=self.route,
+            # pylint: disable=no-member
+            position__lat=self.position.lat,
+            position__lng=self.position.lng,
+        ).exists():
+            raise ValueError(
+                "A position with these coordinates already exists in this route."
+            )
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"Position {self.position.name} in Route {self.route.name}"
@@ -74,14 +102,15 @@ class RoutePosition(models.Model):
         return (
             f"RoutePosition(position={self.position.name}, "
             f"route={self.route.name}, order={self.order}, "
-            f"distance={self.distance}, estimated_time={self.estimated_time})"
         )
+
 
 class UserRoute(models.Model):
     """
     Model representing the association between users and routes.
     A user can use multiple routes and a route can be used by multiple users.
     """
+
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     route = models.ForeignKey(Route, on_delete=models.CASCADE)
 
