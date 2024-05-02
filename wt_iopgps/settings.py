@@ -48,8 +48,8 @@ if EXTERNAL_CSRF_TRUSTED_ORIGINS:
     CSRF_TRUSTED_ORIGINS.extend(EXTERNAL_CSRF_TRUSTED_ORIGINS.split(","))
 
 # Media config:
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 if not DEBUG:
     # Allows SSL if the api is running in production
@@ -94,10 +94,11 @@ INSTALLED_APPS = [
     "licenses",
     "maintenance_manuals",
     "mileage",
+    "users",
+    "movement_orders",
     "routes",
     "statuses",
     "tires",
-    "users",
     "vehicles",
     "work_orders",
 ]
@@ -119,7 +120,7 @@ ROOT_URLCONF = "wt_iopgps.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [os.path.join(BASE_DIR, 'users/templates')],
+        "DIRS": [os.path.join(BASE_DIR, "users/templates")],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
