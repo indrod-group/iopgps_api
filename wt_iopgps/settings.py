@@ -88,6 +88,7 @@ INSTALLED_APPS = [
     "coreapi",
     "rest_framework",
     "rest_framework.authtoken",
+    "advertising",
     "alarms",
     "batteries",
     "devices",
@@ -101,6 +102,7 @@ INSTALLED_APPS = [
     "tires",
     "vehicles",
     "vehicle_insurance",
+    "vehicle_registration",
     "work_orders",
 ]
 
