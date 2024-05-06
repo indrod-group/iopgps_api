@@ -100,6 +100,7 @@ INSTALLED_APPS = [
     "statuses",
     "tires",
     "vehicles",
+    "vehicle_insurance",
     "work_orders",
 ]
 
