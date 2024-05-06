@@ -14,5 +14,5 @@ router.register(r"states", MovementOrderStateViewSet, basename="states")
 router.register(r"incidents", IncidentViewSet, basename="incidents")
 
 urlpatterns = [
-    path("movements/", include(router.urls)),
+    path("", include(router.urls)),
 ]
