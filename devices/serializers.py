@@ -1,7 +1,7 @@
 from rest_framework import serializers
-from users.models import CustomUser, PhoneNumber
+from users.models import PhoneNumber
 
-from users.serializers import CustomUserSerializer, PhoneNumberSerializer
+from users.serializers import PhoneNumberSerializer
 from .models import Device, UserDevice
 
 

@@ -3,6 +3,14 @@ from django.utils.translation import gettext_lazy as _
 
 from users.models import CustomUser
 
+class ProviderChoices(models.TextChoices):
+    """
+    Enumeration for satellite tracking providers.
+    - WANWAYTECH: Represents the WanWayTech provider.
+    - WHATSGPS: Represents the WhatsGPS provider.
+    """
+    WANWAYTECH = 'WanWayTech', _('WanWayTech')
+    WHATSGPS = 'WhatsGPS', _('WhatsGPS')
 
 class Device(models.Model):
     """
@@ -58,6 +66,13 @@ class Device(models.Model):
         default=0,
         help_text=_("The last time when the device alarms were tracked.")
     )
+    provider = models.CharField(
+        _("Provider"),
+        max_length=50,
+        choices=ProviderChoices.choices,
+        default=ProviderChoices.WANWAYTECH,
+        help_text=_("The provider of the device.")
+    )
 
     class Meta:
         verbose_name = _("Device")
@@ -74,9 +89,9 @@ class Device(models.Model):
             f"license_number={self.license_number}, "
             f"vin={self.vin}, "
             f"is_tracking_alarms={self.is_tracking_alarms}, "
-            f"last_time_tracked={self.last_time_tracked}"
+            f"last_time_tracked={self.last_time_tracked}, "
+            f"provider={self.provider}"
         )
-
 
 class UserDevice(models.Model):
     """
