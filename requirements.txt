@@ -54,7 +54,7 @@ PyJWT==2.8.0
 pyparsing==3.1.0
 pytz==2023.3
 redis==5.0.1
-requests==2.31.0
+requests==2.32.0
 rsa==4.9
 six==1.16.0
 sqlparse==0.5.0
