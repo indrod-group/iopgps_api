@@ -60,3 +60,5 @@ class AlarmCodes(models.TextChoices):
     STOPPED = "STOPPED", "Detenido"
     STOPPED_BY_ME = "STOPPEDBYME", "Detenido según yo"
     AUXILIARY_ACTIVITIES = "AUXILIARYACTIVITIES", "Actividades Auxiliares"
+    SLEEPING = "SLEEPING", "Descanso"
+    EXCEPTIONAL_CASES = "EXCEPTIONALCASES", "Casos excepcionales"
