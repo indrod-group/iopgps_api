@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -7,14 +7,14 @@ from rest_framework import viewsets
 from users.models import CustomUser
 from .filters import RouteFilter
 from .models import Route, UserRoute
-from .serializers import RouteSerializer, UserRouteSerializer
+from .serializers import RouteSerializer
 
 
 class UserRouteReadAndCreate(
     viewsets.ReadOnlyModelViewSet,
     viewsets.mixins.CreateModelMixin
 ):
-    serializer_class = UserRouteSerializer
+    serializer_class = RouteSerializer
 
     def get_queryset(self):
         """
@@ -26,7 +26,8 @@ class UserRouteReadAndCreate(
         uuid: Optional[str] = self.kwargs.get("uuid")
         if uuid is not None:
             user = get_object_or_404(CustomUser, uuid=uuid)
-            return UserRoute.objects.filter(user=user)
+            routes = UserRoute.objects.filter(user=user)
+            return [route.route for route in routes]
         return UserRoute.objects.none()
 
 

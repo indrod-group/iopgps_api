@@ -86,12 +86,10 @@ class UserRouteSerializer(serializers.ModelSerializer):
     This serializer includes the 'user' and 'routes' fields from the UserRoute model.
     """
 
-    user = serializers.StringRelatedField()
     routes = RouteSerializer(many=True, read_only=True)
 
     class Meta:
         model = UserRoute
         fields = [
-            "user",
             "routes",
         ]
