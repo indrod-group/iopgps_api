@@ -11,8 +11,7 @@ from .serializers import RouteSerializer
 
 
 class UserRouteReadAndCreate(
-    viewsets.ReadOnlyModelViewSet,
-    viewsets.mixins.CreateModelMixin
+    viewsets.ReadOnlyModelViewSet, viewsets.mixins.CreateModelMixin
 ):
     serializer_class = RouteSerializer
 
@@ -29,7 +28,6 @@ class UserRouteReadAndCreate(
             routes = UserRoute.objects.filter(user=user)
             return [route.route for route in routes]
         return UserRoute.objects.none()
-
 
 
 class RouteViewSet(viewsets.ModelViewSet):
